@@ -1,0 +1,11 @@
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+    # definir las globales que se podran usar en cualquier plantilla de twig
+    globals:
+        # en cualqueir template twig podemos usar la variable message y tendra el valor que le asignamos, 
+        # en este caso es la del servicio '%hello_message%' que esta en el service.yaml, pero se puede poenr directamente 'hola que tal'
+        message: '%hello_message%'
+    # definir el thema que tendran los formularios, aqui usamos el de bootstrap    
+    form_themes: ['bootstrap_4_layout.html.twig']    

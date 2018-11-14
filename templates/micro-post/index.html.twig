@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello {{ controller_name | default("there") }}!{% endblock %}
+
+{% block body %}
+
+    {# Acceder a la session que contiene los flash message, para ello deberemos acceder con la variable que esta en flashes dentro de app, app.flashes().
+    Aqui buscaremos por la key que hemos creado el flash message en el controlador. Por ejemplo si borramos un mensaje en el controlador
+    pondremos el flash message con "deleted" => "borrado", para acceder a esos mensajes usaremos app.flashes("deleted") #}
+    {% for message in app.flashes("deleted") %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+
+    {# Si el array de usuarios para seguir es mas grande que 0, se muestran los usuarios#}
+    {% if usersToFollow | length > 0 %}
+
+        <p>You currently don't follow anyone, you migth find these users interesting: </p>
+
+        {% for userToFollow in usersToFollow %}
+
+            <a href='{{ path("micro_post_user", {"username": userToFollow.username }) }}'>@{{ userToFollow.username }} </a>
+        {% endfor %}
+
+        {# Si no, se muestran los post de los usuarios que sigue #}
+    {% else %}
+
+        <h6 class="border-bottom border-gray pb-2 mb-0">Recent updates</h6>
+
+        {% for post in posts %}
+
+            {# Incluir la plantilla para generar los post, se pasan las variables como de constumbre {key : value} #}
+            {{ include("micro-post/raw-post.html.twig", {"post": post}) }}
+
+            <small class="d-block text-right mt-3">
+                {# la funcion de twig is_granted() nos permite comprobar roles, acciones, etc.#}
+                {# en este caso comprobamos la accion 'edit' con el objeto post, llamara a la class MicroPostVoter y hara las comprobaciones #}
+                {% if is_granted("edit", post) %}
+                    <a href="{{ path("micro_post_edit", {"id" : post.id}) }}">Edit</a>
+                {% endif %}
+                {# igual que el edit #}
+                {% if is_granted("delete", post) %}
+                    <a href="{{ path("micro_post_delete", {"id" : post.id}) }}">Delete</a>
+                {% endif %}
+            </small>
+
+        {% endfor %}
+
+    {% endif %}
+{% endblock %}

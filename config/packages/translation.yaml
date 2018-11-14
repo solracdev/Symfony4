@@ -1,0 +1,10 @@
+framework:
+    # Lenguaje por defecto de la app, que actualmente coge el valor del parametro locale en service.yaml
+    default_locale: '%locale%'
+    translator:
+        # directorio donde se encuentran los ficheros de traduccion
+        default_path: '%kernel.project_dir%/translations'
+        # esta key define que se usara el lenguaje definido aqui cuando no se encuentra la traduccion,
+        # es decir si queremos pasar algo al español y no lo encuentra, lo traducira al ingles automaticamente
+        fallbacks:
+            - '%locale%'

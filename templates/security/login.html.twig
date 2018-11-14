@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {# comprobar si la variable error tiene contenido ( is set ) #}
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error.messageKey|trans(error.messageData, 'security') }}
+        </div>
+    {% endif %}
+
+    <form action="{{ path('security_login') }}" method="post">
+        <div>
+            <div class="form-group">
+                <label class="form-control-label required" for="username">Username</label>
+                {# en el input el label name es el mas importante, por defecto simfony usa el _username, esto se puede cambiar
+                   en el fichero security.yml en la key form_login: username_parameter #}
+                <input type="text" id="username" name="_username" required="required" class="form-control"
+                       value="{{ last_username }}">
+            </div>
+            <div class="form-group">
+                <label class="form-control-label required" for="password">Password</label>
+                {# igual que el input del username #}
+                <input type="password" id="password" name="_password" required="required" class="form-control">
+            </div>
+            <div class="form-group">
+                <button type="submit" id="Login" name="Login" class="btn-secondary btn">Login</button>
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <input type="hidden" name="_target_path" value="{{ app.request.get('redirect_to') }}">
+        </div>
+    </form>
+{% endblock %}

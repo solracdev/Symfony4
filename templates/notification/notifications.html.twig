@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="card">
+        {# Comprobar si tenemos notificaciones con el length del array #}
+        {% if notifications | length > 0  %}
+            <div class="card-body">
+                <h5>Unread notifications</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+
+
+                <li class="list-group-item">
+
+                    <a href="{{ path("check_all_notifications")}}" class="btn btn-block btn-default btn-link btn-outline-info">Mark All as Read</a>
+                </li>
+
+                {% for notification in notifications %}
+
+                    <li class="list-group-item">
+                        
+                        <a href="{{ path("check_notification", {"id": notification.id}) }}" class="btn btn-sm btn-primary float-right"><i class="fas fa-check"></i></a>
+                        
+                        {# Utilizar una funcion creada por nosotros en Twig para comprobar si la instanciade la notificacion es del tipo Like #}
+                        {# La funcion la creamos en src\Twig\AppExtension y el metodo getTest() #}
+                        {% if notification is like %}
+
+                            <a href="{{ path("micro_post_user", {"username": notification.likedBy.username}) }}">
+                                {{ notification.likedBy.username }}</a>
+                            Likes your
+                            <a href="{{ path("micro_post_show", {"id": notification.microPost.id}) }}">post</a>
+
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+
+        {% else %}
+
+            <div class="card-body">You have not notifications</div>
+        {% endif %}
+    </div>
+
+{% endblock %}

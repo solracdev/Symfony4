@@ -1,0 +1,76 @@
+security:
+    # acces decission manager permitre definir la estrategia para los Voters ( si no se define por defecto es con strategy affirmative )
+    #acces_decision_manager:
+        # affirmative es la key por defecto, se puede definir anonymous, etc.
+        #strategy: affirmative
+        
+    encoders:
+        # En el encoder se pone la class que usaremos y en algorithm el tipo de encriptacion, casi siempre se usa bcrypt
+        App\Entity\User:
+            algorithm: bcrypt
+            
+    # inhreitance / herencia de roles
+    role_hierarchy: 
+        # se define el role y que role quiere heredar
+        ROLE_ADMIN: ROLE_USER
+        # un role puede heredar varios roles, se define dentro de un array
+        ROLE_SUPERADMIN: [ROLE_ADMIN, ROLE_USER]
+        
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        # cargaremos los usaurios desde la BBDD, para ello crearemos un provider, el nombre da igual, aqui uso el database_users
+        database_users:
+            # aqui definimos que entidad gestiona/tiene los usuarios, se define con la key class y el value la classe, la key property la propiedad / atributo,
+            # con que el usuario podra hacer login. Este puede ser el email, el username, lo que nosotros queramos, tiene que ser un atributo que este en la class.
+            entity: { class: App\Entity\User, property: username }
+            
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            # establecer el anonymous a true, permite que se pueda entrar a todas las paginas que no tengan una directiva de roles
+            anonymous: true
+            
+            # Activar el patron para que el firewall este activo en todas las rutas
+            pattern: ^/
+            
+            # key para utilizar una class para la comprobacion del usuario
+            user_checker: App\Security\UserChecker
+
+            # activate different ways to authenticate
+
+            # el icono ~ determina la configuracion por defecto
+            #http_basic: ~
+            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
+
+            form_login:
+                check_path: security_login
+                # esta key (login_path) determina la ruta donde se reedireccionara al usuario cuando intenta entrar a un sitio sin permisos
+                login_path: security_login
+                # csrf = cross site request forgey
+                csrf_token_generator: security.csrf.token_manager
+                default_target_path: micro_post_index
+                # reedireccionar a los usuarios a la ultima pagina visitada
+                #use_referer: true
+                # reedireccionar en caso que falle el login
+                #failure_path: security_login
+                # estas dos keys se definen para los values de los labels name="" de los inputs del formulario,
+                # por defecto symfony usa: _username y _password, si se quiere utilziar otros, se defina la key con el nombre
+                # y en el twig usaremos los que hemos definido aqui
+                #username_parameter: _usuarionick (en el input del twig el label name seria: name="_usuarionick")
+                #password_parameter: _contraseña (en el input del twig el label name seria: name="_contraseña")
+            # https://symfony.com/doc/current/security/form_login_setup.html
+            
+            logout:
+                # ruta (nombre de la ruta del controlador) donde el usuario ira para hacer logout
+                path: security_logout
+                # reedirecionar al usuario cuando ha hecho el logout
+                target: security_login
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # - { path: ^/micro-post, roles: ROLE_USER }
+        # - { path: ^/admin, roles: ROLE_ADMIN }
+        # - { path: ^/profile, roles: ROLE_USER }

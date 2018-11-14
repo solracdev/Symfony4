@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {{ include("micro-post/raw-post.html.twig", {"post": post}) }}
+
+    {# Definir variable para saber si el usuario actual le ha dado al like del post #}
+    {% set isLiked = post.getLikedBy.contains(app.user) %}
+
+    {# Como he comentado en otros twig template, se puede acceder a metodos de las classes desde twig y pasarle parametros,
+       por ejemplo en este template vemos como llamamos al metodo de post getLikedBy y al ser una collection llamamos al metodo contains con el parametro user.#}
+
+    <div class="pt-2">
+        {# boton de like #}
+        <button style="display:{% if not isLiked %} block {% else %} none {% endif %}"
+                class="btn btn-outline-secondary btn-sm" id="like">Like
+            <span class="badge badge-light" id="total-likes">{{ post.getLikedBy.count }} </span>
+        </button>    
+
+        {# boton de unlike #}
+        <button style="display:{% if isLiked %} block {% else %} none {% endif %}"
+                class="btn btn-outline-danger btn-sm" id="unlike">Unlike
+            <span class="badge badge-light" id="total-unlikes">{{ post.getLikedBy.count }} </span>
+        </button>  
+
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {# Metodo para no remplazar el codigo original que hay en el base template, de esta manera podemos añadir nuevos scripts amnteniendo el original #}
+    {{ parent() }}
+
+    <script>
+        // Coger los botones de like y unlike por el ID
+        let likeButton = document.getElementById("like");
+        let unlikeButton = document.getElementById("unlike");
+
+        addOnClick(
+                likeButton,
+                unlikeButton,
+                document.getElementById("total-unlikes"),
+                '{{ path("like_post", {"id": post.id}) }}'
+                );
+
+        addOnClick(
+                unlikeButton,
+                likeButton,
+                document.getElementById("total-likes"),
+                '{{ path("unlike_post", {"id": post.id}) }}'
+                );
+
+
+        // mostrar uno o otro boton dependiendo si le hemos dado al like o unlike
+        function swapButtons(button, oppositeButton) {
+
+            // Activar el boton que se deshabilita en la funcion addOnClick
+            button.disabled = false;
+            
+            // Cambiar el display de los botones
+            button.style.display = 'none';
+            oppositeButton.style.display = "block";
+        }
+        
+        /**
+         * 
+         * @param {type} button
+         * @param {type} oppositeButton
+         * @param {type} likeCount
+         * @param {type} path 
+         * @returns {undefined}
+         */
+        function addOnClick(button, oppositeButton, likeCount, path) {
+
+            // añadir evento de on click al boton
+            button.addEventListener("click", function (event) {
+
+                // Comprobar si el usuario no es anonymous      
+        {% if not app.user %}
+
+                    // Si es anonymous ( no logeado ) se redireciona a la pagina de login
+                    return window.location.replace('{{ path("security_login") }}');
+
+        {% endif %}        
+
+                    // Deshabilitar el boton para no permitir hacer mas llamadas ajax
+                    button.disabled = true;
+
+                    // XMLHttpRequest (AJAX)
+                    // Es muy importante pasarle el data de las credetials, sino en el controlador saldra como anonymous
+                    fetch(path, {"credentials": "include"}).then(function (response) {
+
+                        // Respuesta del controlador
+                        response.json().then(function (json) {
+
+                            // El controlador  devuelve un JsonResponse con el count del array (["count" => $microPost->getLikedBy()->count()])
+                            // Por lo que aqui podemos utilizar la key "count" con la variable json.count.
+                            // Se puede poner en el controlador la key que queramos y en la respuesta utilizar el mismo nombre
+                            likeCount.innerText = json.count;
+
+                            // Llamar a la funcion para intercambiar los botones, like to unlike, unlike to like
+                            swapButtons(button, oppositeButton);
+
+                        });
+                    }).catch(function () {
+                        
+                        // En caso de error intercambiamos los botones
+                        swapButtons(button, oppositeButton);
+
+                    });
+                    event.preventDefault();
+                });
+
+            }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {# empezar el formulario #}
+    {{ form_start(form) }}
+    
+    {# mostrar todos los campos del formulario, si se quiere mostrar alguno en especifico,
+       hay que usar form.child, donde child va el nombre del atributo de la class que hemos puesto en
+       el formType, por ejemplo si solo queremos el username, form_widget(form.username) #}
+    {{ form_widget(form) }}
+    
+    {# finalizar el form #}
+    {{ form_end(form) }}
+    
+{% endblock %}

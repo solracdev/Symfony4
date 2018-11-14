@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    
+    <div class="card-group py-2">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {{ user.fullName }}
+                    <span class="text-muted">. @{{ user.username }}</span>
+                </h5>
+
+                {# Comprobar que el usuario pasado por parametro sea diferente al logeado en la app #}
+                {% if user != app.user %}
+ 
+                    {# En Twig podemos acceder a los metodos que estan definidos en las class, en este caso el atributo followers es un arrayCollection
+                       que tiene el metodo contains(object), podemos llamar a cualquier metodo de una entidad desde twig, incluso con parametros #}
+                    
+                    {#Comprobar que le usuario pasado por parametro no contenga el usuario logeado en la app, si no lo contiene podemos seguirle, lo contrario unfollow #}
+                    {% if not user.followers.contains(app.user) %}
+                        <a href="{{ path("follow_user", {"id": user.id}) }}" class="btn btn-outline-primary">Follow</a>
+                    {% else %}
+                        <a href="{{ path("unfollow_user", {"id": user.id}) }}" class="btn btn-outline-danger">Unfollow</a>
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card-group py-2">
+        <div class="card">
+            <div class="card-body">
+                <h5>Followers {{ user.followers | length }}</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for follower in user.followers %}
+                    <li class="list-group-item">
+                        <a href="{{ path("micro_post_user", {"username" : follower.username}) }}">
+                            @{{ follower.username }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                {# en Tiwg para hacer el array.length se hace asi #}
+                <h5>Following {{ user.following | length }}</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for following in user.following %}
+                    <li class="list-group-item">
+                        <a href="{{ path("micro_post_user", {"username" : following.username}) }}">
+                            @{{ following.username }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    {% for post in posts %}
+
+        {# Incluir la plantilla para generar los post, se pasan las variables como de constumbre {key : value} #}
+        {{ include("micro-post/raw-post.html.twig", {"post": post}) }}
+
+        <small class="d-block text-right mt-3">
+            {# la funcion de twig is_granted() nos permite comprobar roles, acciones, etc.#}
+            {# en este caso comprobamos la accion 'edit' con el objeto post, llamara a la class MicroPostVoter y hara las comprobaciones #}
+            {% if is_granted("edit", post) %}
+                <a href="{{ path("micro_post_edit", {"id" : post.id}) }}">Edit</a>
+            {% endif %}
+            {# igual que el edit #}
+            {% if is_granted("delete", post) %}
+                <a href="{{ path("micro_post_delete", {"id" : post.id}) }}">Delete</a>
+            {% endif %}
+        </small>
+
+
+    {% endfor %}
+
+{% endblock %}
