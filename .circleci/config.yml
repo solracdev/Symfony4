@@ -1,0 +1,28 @@
+# Fichero de Configuracion CircleCi
+
+#Definir la Version del CircleCI
+version: 2
+# Procesos individuales
+jobs:
+    # Generar la maquina virtual
+  build:
+    # Definir el directorio  
+    working_directory: ~/micropost
+    # Especificar el tipo de maquina virtual que queremos
+    docker:
+        # Imagen con la maquina virtual con apache-php-node
+        - image: circleci/php:7.2.4-apache-stretch-node-browser
+          # Definir las variables de entorno
+          environment:
+              APP_ENV: test
+              DATABASE_URL: mysql://root:123456@127.0.0.1:3306/symfony4
+              MAILER_FROM: micropost@micropost.com
+              MAILER_URL: null://localhost   
+        
+        # Imagen para la maquina de mysql
+        - image: circelci/mysql:5.7
+          environment:
+              MYSQL_ROOT_PASSWORD: 'root'
+              MYSQL_DATABASE: micro-post
+              
+              
