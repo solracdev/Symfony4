@@ -25,4 +25,5 @@ jobs:
               MYSQL_ROOT_PASSWORD: 'root'
               MYSQL_DATABASE: micro-post
               
-              
+    # Definir los processos de cada maquina          
+    steps:          
