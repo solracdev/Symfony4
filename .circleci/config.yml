@@ -11,7 +11,7 @@ jobs:
     # Especificar el tipo de maquina virtual que queremos
     docker:
         # Imagen con la maquina virtual con apache-php-node
-        - image: circleci/php:7.2.4-apache-stretch-node-browser
+        - image: circleci/php:7.2.4-apache-stretch-node-browsers
           # Definir las variables de entorno
           environment:
               APP_ENV: test
