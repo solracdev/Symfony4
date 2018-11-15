@@ -26,4 +26,22 @@ jobs:
               MYSQL_DATABASE: micro-post
               
     # Definir los processos de cada maquina          
-    steps:          
+    steps:
+        # Comprobar los repositorios donde nos conectamos
+      - checkout
+      # Comandos
+      - run:
+          name: Install php mysql
+          command: sudo docker-php-ext-install pdo_mysql
+      - run:
+          name: Wait for MySQL
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
+      - run:
+          name: Composer
+          command: sudo composer self-update
+      - run:
+          name: Composer install
+          command: composer install -n --prefer-dist
+      - run:
+          name: Run migrations
+          command: php bin/console doctrine:migrations:migrate --env=test --no-interacion
